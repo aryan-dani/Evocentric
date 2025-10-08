@@ -1,340 +1,423 @@
-# City-Wide Smart EV Charging and Parking DBMS
+# Evocentric 🚗⚡
 
-A modern, full-stack web application for managing city-wide EV charging stations and parking lots with real-time updates, built with React, Tailwind CSS, and Supabase.
+## Smart EV Charging & Parking Management System
 
-## 🚀 Features
+[![React](https://img.shields.io/badge/React-19.1.1-61DAFB?logo=react)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-7.1.7-646CFF?logo=vite)](https://vitejs.dev/)
+[![Supabase](https://img.shields.io/badge/Supabase-Latest-3ECF8E?logo=supabase)](https://supabase.com/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4.18-38B2AC?logo=tailwindcss)](https://tailwindcss.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- **Live Dashboard** - Real-time statistics and recent activity monitoring
-- **User Management** - Complete CRUD operations for managing users
-- **Charging Stations** - Manage charging stations with port availability tracking
-- **Parking Lots** - Monitor and manage parking spaces with occupancy rates
-- **Reservations** - Track and manage reservations with search functionality
-- **Penalties** - Monitor penalties with payment status tracking
+> A modern, full-stack web application for managing city-wide EV charging stations with real-time updates, comprehensive database management, and beautiful UI powered by Poppins font family.
+
+---
+
+## 📸 Screenshots
+
+_Dashboard with comprehensive statistics and real-time activity_
+
+---
+
+## ✨ Features
+
+### 🎯 Core Functionality
+
+- **Live Dashboard** - Real-time statistics, occupancy rates, slot availability, and activity monitoring
+- **User Management** - Complete CRUD operations with wallet balance tracking
+- **Charging Station Management** - Monitor stations, slots, and real-time availability
+- **Reservation System** - Track and manage EV charging reservations with status updates
+- **Penalty Tracking** - Monitor violations, fines, and payment status
 - **Real-time Updates** - Live data synchronization using Supabase subscriptions
-- **Responsive Design** - Mobile-friendly UI with Tailwind CSS
-- **Modern UI** - Clean interface using Shadcn UI components
+- **Advanced Analytics** - Occupancy rates, user statistics, and performance metrics
 
-## 📋 Prerequisites
+### 🎨 UI/UX
 
-- Node.js (v14 or higher)
-- npm or yarn
-- Supabase account
+- **Responsive Design** - Mobile-first, works on all devices
+- **Modern Interface** - Clean design with Poppins font family
+- **Shadcn UI Components** - Beautiful, accessible components
+- **Interactive Visualizations** - Progress bars, status badges, color-coded stats
+- **Smooth Animations** - Hover effects and transitions
+- **Dark Mode Ready** - Theme system in place
 
-## 🛠️ Installation
+### ⚡ Technical Features
 
-1. **Clone the repository**
+- **Vite** - Lightning-fast dev server and builds
+- **React 19** - Latest React features
+- **TypeScript** - Type-safe development
+- **Supabase** - Powerful backend with PostgreSQL
+- **Row Level Security** - Database-level security
+- **Real-time Subscriptions** - WebSocket connections
+- **Optimized Queries** - Indexed database columns
+- **Client-side Routing** - React Router v7
 
-   ```bash
-   git clone <your-repo-url>
-   cd Evocentric
-   ```
+---
 
-2. **Install dependencies**
+## 📋 Table of Contents
 
-   ```bash
-   npm install
-   ```
+- [Prerequisites](#-prerequisites)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [Database Schema](#-database-schema)
+- [Development](#-development)
+- [API Documentation](#-api-documentation)
+- [Deployment](#-deployment)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-3. **Set up environment variables**
+---
 
-   Create a `.env.local` file in the root directory:
+## 🔧 Prerequisites
 
-   ```env
-   VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+- **Node.js** v18+ ([Download](https://nodejs.org/))
+- **npm** / **yarn** / **pnpm**
+- **Supabase Account** ([Sign up](https://supabase.com))
+- **Git** ([Download](https://git-scm.com/))
 
-4. **Set up Supabase Database**
+---
 
-   Run the following SQL in your Supabase SQL Editor:
+## 🚀 Quick Start
 
-   ```sql
-   -- Create Users Table
-   CREATE TABLE users (
-     id SERIAL PRIMARY KEY,
-     name VARCHAR(255) NOT NULL,
-     email VARCHAR(255) UNIQUE NOT NULL,
-     phone VARCHAR(20),
-     vehicle_number VARCHAR(50),
-     payment_method VARCHAR(50),
-     created_at TIMESTAMP DEFAULT NOW()
-   );
+### 1️⃣ Clone the Repository
 
-   -- Create Charging Stations Table
-   CREATE TABLE charging_stations (
-     id SERIAL PRIMARY KEY,
-     name VARCHAR(255) NOT NULL,
-     location VARCHAR(255) NOT NULL,
-     total_ports INTEGER NOT NULL,
-     available_ports INTEGER NOT NULL,
-     status VARCHAR(50) DEFAULT 'active',
-     created_at TIMESTAMP DEFAULT NOW()
-   );
+```bash
+git clone https://github.com/yourusername/evocentric.git
+cd evocentric
+```
 
-   -- Create Parking Lots Table
-   CREATE TABLE parking_lots (
-     id SERIAL PRIMARY KEY,
-     name VARCHAR(255) NOT NULL,
-     location VARCHAR(255) NOT NULL,
-     total_spaces INTEGER NOT NULL,
-     available_spaces INTEGER NOT NULL,
-     hourly_rate DECIMAL(10, 2) NOT NULL,
-     created_at TIMESTAMP DEFAULT NOW()
-   );
+### 2️⃣ Install Dependencies
 
-   -- Create Reservations Table
-   CREATE TABLE reservations (
-     id SERIAL PRIMARY KEY,
-     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-     station_id INTEGER REFERENCES charging_stations(id) ON DELETE CASCADE,
-     slot_number VARCHAR(10) NOT NULL,
-     start_time TIMESTAMP NOT NULL,
-     end_time TIMESTAMP NOT NULL,
-     status VARCHAR(50) DEFAULT 'active',
-     payment_status VARCHAR(50) DEFAULT 'pending',
-     created_at TIMESTAMP DEFAULT NOW()
-   );
+```bash
+npm install
+```
 
-   -- Create Penalties Table
-   CREATE TABLE penalties (
-     id SERIAL PRIMARY KEY,
-     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-     reason TEXT NOT NULL,
-     amount DECIMAL(10, 2) NOT NULL,
-     status VARCHAR(50) DEFAULT 'unpaid',
-     created_at TIMESTAMP DEFAULT NOW()
-   );
+### 3️⃣ Environment Setup
 
-   -- Enable Row Level Security (RLS)
-   ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE charging_stations ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE parking_lots ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE reservations ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE penalties ENABLE ROW LEVEL SECURITY;
+Copy `.env.example` to `.env.local` and fill in your Supabase credentials:
 
-   -- Create policies for public access (for development)
-   CREATE POLICY "Enable all operations for all users" ON users FOR ALL USING (true);
-   CREATE POLICY "Enable all operations for all users" ON charging_stations FOR ALL USING (true);
-   CREATE POLICY "Enable all operations for all users" ON parking_lots FOR ALL USING (true);
-   CREATE POLICY "Enable all operations for all users" ON reservations FOR ALL USING (true);
-   CREATE POLICY "Enable all operations for all users" ON penalties FOR ALL USING (true);
+```bash
+cp .env.example .env.local
+```
 
-   -- Insert Sample Data
-   INSERT INTO users (name, email, phone, vehicle_number, payment_method) VALUES
-   ('John Doe', 'john@example.com', '555-0001', 'ABC123', 'Credit Card'),
-   ('Jane Smith', 'jane@example.com', '555-0002', 'XYZ789', 'Debit Card'),
-   ('Bob Johnson', 'bob@example.com', '555-0003', 'DEF456', 'PayPal');
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
+```
 
-   INSERT INTO charging_stations (name, location, total_ports, available_ports, status) VALUES
-   ('Downtown Station', '123 Main St', 10, 7, 'active'),
-   ('Airport Hub', '456 Airport Rd', 20, 15, 'active'),
-   ('Mall Center', '789 Shopping Blvd', 15, 10, 'active');
+### 4️⃣ Database Setup
 
-   INSERT INTO parking_lots (name, location, total_spaces, available_spaces, hourly_rate) VALUES
-   ('City Center Parking', '100 Central Ave', 200, 150, 5.00),
-   ('Beach Parking', '200 Ocean Dr', 100, 80, 3.50),
-   ('Stadium Parking', '300 Sports Way', 500, 400, 7.00);
+Run the SQL files in your Supabase SQL Editor:
 
-   INSERT INTO reservations (user_id, station_id, slot_number, start_time, end_time, status, payment_status) VALUES
-   (1, 1, 'A1', NOW(), NOW() + INTERVAL '2 hours', 'active', 'paid'),
-   (2, 2, 'B3', NOW(), NOW() + INTERVAL '1 hour', 'active', 'pending'),
-   (3, 1, 'A5', NOW(), NOW() + INTERVAL '3 hours', 'completed', 'paid');
+```sql
+-- 1. Run schema.sql to create tables
+-- 2. Run seed.sql to add sample data
+```
 
-   INSERT INTO penalties (user_id, reason, amount, status) VALUES
-   (1, 'Overstay penalty - 30 minutes', 15.00, 'unpaid'),
-   (2, 'Late cancellation fee', 10.00, 'paid'),
-   (3, 'Parking violation', 25.00, 'unpaid');
-   ```
+Files are located in `database/` directory.
 
-## 🚀 Running the Application
+### 5️⃣ Start Development Server
 
-1. **Development mode**
+```bash
+npm run dev
+```
 
-   ```bash
-   npm run dev
-   ```
+Visit **http://localhost:5173** 🎉
 
-   The application will be available at `http://localhost:5173` (or the next available port)
+---
 
-2. **Build for production**
-
-   ```bash
-   npm run build
-   ```
-
-3. **Preview production build**
-   ```bash
-   npm run preview
-   ```
-
-## 📱 Application Structure
+## 📁 Project Structure
 
 ```
-Evocentric/
+evocentric/
 ├── src/
-│   ├── components/
-│   │   ├── ui/
-│   │   │   └── card.jsx          # Reusable Card component
-│   │   ├── Sidebar.jsx           # Navigation sidebar
-│   │   └── Topbar.jsx            # Top navigation bar
-│   ├── pages/
-│   │   ├── Dashboard.jsx         # Dashboard with stats
-│   │   ├── Users.jsx             # User management
-│   │   ├── Stations.jsx          # Charging stations
-│   │   ├── Parking.jsx           # Parking lots
-│   │   ├── Reservations.jsx      # Reservations management
-│   │   └── Penalties.jsx         # Penalty tracking
-│   ├── lib/
-│   │   ├── supabaseClient.js     # Supabase configuration
-│   │   └── utils.js              # Utility functions
-│   ├── App.jsx                   # Main app component
-│   ├── main.jsx                  # Entry point
-│   └── index.css                 # Global styles
-├── .env.local                    # Environment variables
-├── tailwind.config.js            # Tailwind configuration
-├── vite.config.ts                # Vite configuration
-└── package.json                  # Dependencies
+│   ├── components/          # Reusable components
+│   │   ├── ui/             # Shadcn UI components
+│   │   │   └── card.jsx
+│   │   ├── Sidebar.jsx     # Navigation sidebar
+│   │   └── Topbar.jsx      # Top navigation bar
+│   ├── pages/              # Page components
+│   │   ├── Dashboard.jsx   # Main dashboard (Enhanced!)
+│   │   ├── Users.jsx       # User management
+│   │   ├── Stations.jsx    # Charging stations
+│   │   ├── Reservations.jsx # Reservations
+│   │   └── Penalties.jsx   # Penalties
+│   ├── lib/                # Utilities
+│   │   ├── supabaseClient.js # Supabase config
+│   │   └── utils.js        # Helper functions
+│   ├── assets/             # Static assets
+│   ├── App.jsx             # Main app
+│   ├── main.jsx            # Entry point
+│   └── index.css           # Global styles (Poppins font!)
+├── database/               # Database files
+│   ├── schema.sql         # Complete schema
+│   └── seed.sql           # Sample data
+├── docs/                   # Documentation
+│   └── API.md             # API documentation
+├── public/                 # Public assets
+├── .env.example           # Environment template
+├── .gitignore            # Git ignore
+├── package.json          # Dependencies
+├── tailwind.config.cjs   # Tailwind config
+├── vite.config.ts        # Vite config
+├── CONTRIBUTING.md       # Contribution guide
+├── CHANGELOG.md          # Version history
+├── LICENSE               # MIT License
+└── README.md             # This file
 ```
 
-## 🎨 Key Technologies
+---
 
-- **React 18** - UI library
-- **Vite** - Build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **Supabase** - Backend as a Service (BaaS)
-- **React Router** - Client-side routing
-- **Lucide React** - Icon library
-- **Framer Motion** - Animation library
+## 🗄️ Database Schema
 
-## 🔑 Key Features Explained
+### Tables Overview
 
-### Real-time Updates
+| Table               | Primary Key      | Description               |
+| ------------------- | ---------------- | ------------------------- |
+| `users`             | `user_id`        | User accounts with wallet |
+| `charging_stations` | `station_id`     | EV charging locations     |
+| `reservations`      | `reservation_id` | Slot reservations         |
+| `penalties`         | `penalty_id`     | Fines and violations      |
 
-The application uses Supabase's real-time subscriptions to automatically update data across all clients when changes occur in the database.
+### Entity Relationships
 
-### CRUD Operations
+```
+users (user_id)
+  ├── 1:N → reservations (user_id)
 
-All major entities (Users, Stations, Parking, Reservations, Penalties) support:
+charging_stations (station_id)
+  ├── 1:N → reservations (slot_id)
 
-- **Create** - Add new records
-- **Read** - View and search records
-- **Update** - Edit existing records
-- **Delete** - Remove records
+reservations (reservation_id)
+  ├── 1:N → penalties (reservation_id)
+```
 
-### Responsive Design
+### Key Features
 
-The application is fully responsive and works seamlessly on:
+- ✅ Foreign key constraints
+- ✅ Check constraints for data integrity
+- ✅ Indexes for performance
+- ✅ Triggers for auto-updates
+- ✅ Views for analytics
+- ✅ Row Level Security (RLS)
 
-- Desktop computers
-- Tablets
-- Mobile devices
+📚 **Full schema details:** [DATABASE_NOTES.md](DATABASE_NOTES.md)
 
-## 🔒 Security Notes
+---
 
-**Important**: The sample database policies allow public access for development purposes. For production:
+## 🛠️ Development
 
-1. Implement proper authentication
-2. Update RLS policies to restrict access based on user roles
-3. Add input validation and sanitization
-4. Use environment variables for sensitive data
+### Available Commands
 
-## 📝 Environment Variables
+```bash
+# Development
+npm run dev          # Start dev server
+npm run build        # Build for production
+npm run preview      # Preview production build
 
-| Variable                 | Description                 |
-| ------------------------ | --------------------------- |
-| `VITE_SUPABASE_URL`      | Your Supabase project URL   |
-| `VITE_SUPABASE_ANON_KEY` | Your Supabase anonymous key |
+# Code Quality
+npm run lint         # Lint code
+npm run type-check   # TypeScript check
 
-## 🐛 Troubleshooting
+# Database
+# Run SQL files in Supabase SQL Editor
+```
 
-1. **Port already in use**
+### Tech Stack
 
-   - The dev server will automatically try the next available port
-   - Or manually specify a port: `npm run dev -- --port 3000`
+| Category       | Technology              |
+| -------------- | ----------------------- |
+| **Frontend**   | React 19, TypeScript    |
+| **Styling**    | Tailwind CSS, Shadcn UI |
+| **Backend**    | Supabase (PostgreSQL)   |
+| **Build Tool** | Vite 7                  |
+| **Routing**    | React Router 7          |
+| **Icons**      | Lucide React            |
+| **Font**       | Poppins (Google Fonts)  |
 
-2. **Supabase connection issues**
+### Code Style
 
-   - Verify your `.env.local` file has the correct credentials
-   - Check that your Supabase project is active
-   - Ensure RLS policies are set up correctly
+- ✅ 2 spaces indentation
+- ✅ Single quotes for strings
+- ✅ Semicolons
+- ✅ Arrow functions
+- ✅ Async/await
+- ✅ Template literals
+- ✅ JSDoc comments
 
-3. **Build errors**
-   - Clear node_modules: `rm -rf node_modules && npm install`
-   - Clear cache: `rm -rf .vite && npm run dev`
+---
 
-## 📄 License
+## 📖 API Documentation
 
-This project is open source and available under the MIT License.
+### Supabase Client Usage
+
+```javascript
+import { supabase } from "./lib/supabaseClient";
+
+// Fetch data
+const { data, error } = await supabase.from("users").select("*");
+
+// Real-time subscription
+const channel = supabase
+  .channel("changes")
+  .on(
+    "postgres_changes",
+    { event: "*", schema: "public", table: "users" },
+    (payload) => console.log(payload)
+  )
+  .subscribe();
+```
+
+📚 **Full API docs:** [docs/API.md](docs/API.md)
+
+---
+
+## 🚀 Deployment
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+### Deploy Options
+
+| Platform         | Command                                                      |
+| ---------------- | ------------------------------------------------------------ |
+| **Vercel**       | `vercel --prod`                                              |
+| **Netlify**      | `netlify deploy --prod`                                      |
+| **GitHub Pages** | See [Vite docs](https://vitejs.dev/guide/static-deploy.html) |
+
+### Environment Variables
+
+Set these in your hosting platform:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+### Production Checklist
+
+- [ ] Update Supabase RLS policies
+- [ ] Add authentication
+- [ ] Configure CORS
+- [ ] Enable HTTPS
+- [ ] Set up monitoring
+- [ ] Add error tracking
+- [ ] Optimize images
+- [ ] Enable compression
+
+---
+
+## 🎨 Customization
+
+### Change Theme Colors
+
+Edit `src/index.css`:
+
+```css
+:root {
+  --primary: 222.2 47.4% 11.2%;
+  --secondary: 210 40% 96.1%;
+  /* ... */
+}
+```
+
+### Change Font
+
+Already using **Poppins** throughout! To change:
+
+1. Update `index.html` Google Fonts link
+2. Update `tailwind.config.cjs` fontFamily
+3. Update `src/index.css` body font
+
+---
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome!
+We love contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
-## 👨‍💻 Author
+- Code of Conduct
+- Development setup
+- Pull request process
+- Coding standards
 
-Built with ❤️ for modern city infrastructure management
+---
 
-## React Compiler
+## 📝 License
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This project is licensed under the **MIT License** - see [LICENSE](LICENSE) file for details.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🙏 Acknowledgments
 
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
+Built with amazing open-source tools:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- [React](https://reactjs.org/) - UI library
+- [Vite](https://vitejs.dev/) - Build tool
+- [Supabase](https://supabase.com/) - Backend platform
+- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [Shadcn UI](https://ui.shadcn.com/) - Components
+- [Lucide](https://lucide.dev/) - Icons
+- [Google Fonts](https://fonts.google.com/) - Poppins font
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📞 Support & Contact
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+- 📧 **Email:** support@evocentric.com
+- 🐛 **Issues:** [GitHub Issues](https://github.com/yourusername/evocentric/issues)
+- 💬 **Discussions:** [GitHub Discussions](https://github.com/yourusername/evocentric/discussions)
+- 📖 **Documentation:** [docs/](docs/)
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+---
+
+## 🎯 Roadmap
+
+### Phase 1 (Current)
+
+- [x] Core CRUD operations
+- [x] Real-time updates
+- [x] Enhanced dashboard
+- [x] Poppins font integration
+- [x] Proper documentation
+
+### Phase 2 (Next)
+
+- [ ] User authentication & authorization
+- [ ] Payment gateway integration
+- [ ] Email notifications
+- [ ] Advanced analytics
+- [ ] Export functionality
+
+### Phase 3 (Future)
+
+- [ ] Mobile app (React Native)
+- [ ] Admin panel
+- [ ] Multi-language support
+- [ ] Dark mode
+- [ ] PWA support
+- [ ] AI-powered recommendations
+
+---
+
+## ⭐ Star History
+
+If you find this project useful, please consider giving it a star! ⭐
+
+---
+
+## 📊 Stats
+
+![GitHub stars](https://img.shields.io/github/stars/yourusername/evocentric?style=social)
+![GitHub forks](https://img.shields.io/github/forks/yourusername/evocentric?style=social)
+![GitHub watchers](https://img.shields.io/github/watchers/yourusername/evocentric?style=social)
+
+---
+
+<div align="center">
+
+**Made with ❤️ for modern city infrastructure management**
+
+[⬆ Back to Top](#evocentric-)
+
+</div>
