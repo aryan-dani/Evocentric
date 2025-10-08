@@ -9,11 +9,10 @@ const Stations = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingStation, setEditingStation] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
+    station_name: "",
     location: "",
-    total_ports: 0,
-    available_ports: 0,
-    status: "active",
+    total_slots: 0,
+    available_slots: 0,
   });
 
   useEffect(() => {
@@ -41,7 +40,7 @@ const Stations = () => {
     const { data, error } = await supabase
       .from("charging_stations")
       .select("*")
-      .order("id", { ascending: true });
+      .order("station_id", { ascending: true });
     if (data) setStations(data);
     setLoading(false);
   };
@@ -52,7 +51,7 @@ const Stations = () => {
       const { error } = await supabase
         .from("charging_stations")
         .update(formData)
-        .eq("id", editingStation.id);
+        .eq("station_id", editingStation.station_id);
       if (!error) {
         fetchStations();
         resetForm();
@@ -73,7 +72,7 @@ const Stations = () => {
       const { error } = await supabase
         .from("charging_stations")
         .delete()
-        .eq("id", id);
+        .eq("station_id", id);
       if (!error) fetchStations();
     }
   };
@@ -81,22 +80,20 @@ const Stations = () => {
   const handleEdit = (station) => {
     setEditingStation(station);
     setFormData({
-      name: station.name,
+      station_name: station.station_name,
       location: station.location,
-      total_ports: station.total_ports,
-      available_ports: station.available_ports,
-      status: station.status,
+      total_slots: station.total_slots,
+      available_slots: station.available_slots,
     });
     setShowModal(true);
   };
 
   const resetForm = () => {
     setFormData({
-      name: "",
+      station_name: "",
       location: "",
-      total_ports: 0,
-      available_ports: 0,
-      status: "active",
+      total_slots: 0,
+      available_slots: 0,
     });
     setEditingStation(null);
     setShowModal(false);
@@ -123,33 +120,26 @@ const Stations = () => {
         ) : (
           stations.map((station) => (
             <Card
-              key={station.id}
+              key={station.station_id}
               className="hover:shadow-lg transition-shadow"
             >
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-semibold text-lg">{station.name}</h3>
+                    <h3 className="font-semibold text-lg">
+                      {station.station_name}
+                    </h3>
                     <p className="text-sm text-gray-500 flex items-center gap-1">
                       <MapPin size={14} />
                       {station.location}
                     </p>
                   </div>
-                  <span
-                    className={`px-2 py-1 rounded text-xs ${
-                      station.status === "active"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {station.status}
-                  </span>
                 </div>
                 <div className="flex items-center gap-2 mb-4">
                   <Battery className="text-blue-600" size={20} />
                   <span className="text-sm">
-                    <strong>{station.available_ports}</strong> /{" "}
-                    {station.total_ports} ports available
+                    <strong>{station.available_slots}</strong> /{" "}
+                    {station.total_slots} slots available
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -161,7 +151,7 @@ const Stations = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(station.id)}
+                    onClick={() => handleDelete(station.station_id)}
                     className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded border border-red-600"
                   >
                     <Trash2 size={16} className="inline mr-1" />
@@ -187,9 +177,9 @@ const Stations = () => {
                 </label>
                 <input
                   type="text"
-                  value={formData.name}
+                  value={formData.station_name}
                   onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
+                    setFormData({ ...formData, station_name: e.target.value })
                   }
                   className="w-full border rounded-md px-3 py-2"
                   required
@@ -211,15 +201,15 @@ const Stations = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Total Ports
+                  Total Slots
                 </label>
                 <input
                   type="number"
-                  value={formData.total_ports}
+                  value={formData.total_slots}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      total_ports: parseInt(e.target.value),
+                      total_slots: parseInt(e.target.value),
                     })
                   }
                   className="w-full border rounded-md px-3 py-2"
@@ -229,35 +219,21 @@ const Stations = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Available Ports
+                  Available Slots
                 </label>
                 <input
                   type="number"
-                  value={formData.available_ports}
+                  value={formData.available_slots}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      available_ports: parseInt(e.target.value),
+                      available_slots: parseInt(e.target.value),
                     })
                   }
                   className="w-full border rounded-md px-3 py-2"
                   required
                   min="0"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value })
-                  }
-                  className="w-full border rounded-md px-3 py-2"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="maintenance">Maintenance</option>
-                </select>
               </div>
               <div className="flex gap-2 justify-end">
                 <button

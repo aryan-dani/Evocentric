@@ -12,12 +12,12 @@ import {
 
 const Penalties = () => {
   const [penalties, setPenalties] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingPenalty, setEditingPenalty] = useState(null);
   const [formData, setFormData] = useState({
-    user_id: "",
+    reservation_id: "",
     reason: "",
     amount: 0,
     status: "unpaid",
@@ -25,7 +25,7 @@ const Penalties = () => {
 
   useEffect(() => {
     fetchPenalties();
-    fetchUsers();
+    fetchReservations();
 
     // Real-time subscription
     const channel = supabase
@@ -48,15 +48,17 @@ const Penalties = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("penalties")
-      .select("*, users(name)")
+      .select("*, reservations(reservation_id, user_id, users(name))")
       .order("created_at", { ascending: false });
     if (data) setPenalties(data);
     setLoading(false);
   };
 
-  const fetchUsers = async () => {
-    const { data } = await supabase.from("users").select("id, name");
-    if (data) setUsers(data);
+  const fetchReservations = async () => {
+    const { data } = await supabase
+      .from("reservations")
+      .select("reservation_id, user_id, users(name)");
+    if (data) setReservations(data);
   };
 
   const handleSubmit = async (e) => {
@@ -65,7 +67,7 @@ const Penalties = () => {
       const { error } = await supabase
         .from("penalties")
         .update(formData)
-        .eq("id", editingPenalty.id);
+        .eq("penalty_id", editingPenalty.penalty_id);
       if (!error) {
         fetchPenalties();
         resetForm();
@@ -81,7 +83,10 @@ const Penalties = () => {
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this penalty?")) {
-      const { error } = await supabase.from("penalties").delete().eq("id", id);
+      const { error } = await supabase
+        .from("penalties")
+        .delete()
+        .eq("penalty_id", id);
       if (!error) fetchPenalties();
     }
   };
@@ -89,7 +94,7 @@ const Penalties = () => {
   const handleEdit = (penalty) => {
     setEditingPenalty(penalty);
     setFormData({
-      user_id: penalty.user_id,
+      reservation_id: penalty.reservation_id,
       reason: penalty.reason,
       amount: penalty.amount,
       status: penalty.status,
@@ -102,12 +107,17 @@ const Penalties = () => {
     const { error } = await supabase
       .from("penalties")
       .update({ status: newStatus })
-      .eq("id", penalty.id);
+      .eq("penalty_id", penalty.penalty_id);
     if (!error) fetchPenalties();
   };
 
   const resetForm = () => {
-    setFormData({ user_id: "", reason: "", amount: 0, status: "unpaid" });
+    setFormData({
+      reservation_id: "",
+      reason: "",
+      amount: 0,
+      status: "unpaid",
+    });
     setEditingPenalty(null);
     setShowModal(false);
   };
@@ -191,6 +201,9 @@ const Penalties = () => {
                     User
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Reservation ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Reason
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -222,10 +235,15 @@ const Penalties = () => {
                   </tr>
                 ) : (
                   penalties.map((penalty) => (
-                    <tr key={penalty.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm">{penalty.id}</td>
+                    <tr key={penalty.penalty_id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm">
+                        {penalty.penalty_id}
+                      </td>
                       <td className="px-6 py-4 text-sm font-medium">
-                        {penalty.users?.name || "N/A"}
+                        {penalty.reservations?.users?.name || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        {penalty.reservation_id}
                       </td>
                       <td className="px-6 py-4 text-sm">{penalty.reason}</td>
                       <td className="px-6 py-4 text-sm font-semibold">
@@ -255,7 +273,7 @@ const Penalties = () => {
                             <Edit size={18} />
                           </button>
                           <button
-                            onClick={() => handleDelete(penalty.id)}
+                            onClick={() => handleDelete(penalty.penalty_id)}
                             className="text-red-600 hover:text-red-800"
                           >
                             <Trash2 size={18} />
@@ -279,19 +297,25 @@ const Penalties = () => {
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">User</label>
+                <label className="block text-sm font-medium mb-1">
+                  Reservation
+                </label>
                 <select
-                  value={formData.user_id}
+                  value={formData.reservation_id}
                   onChange={(e) =>
-                    setFormData({ ...formData, user_id: e.target.value })
+                    setFormData({ ...formData, reservation_id: e.target.value })
                   }
                   className="w-full border rounded-md px-3 py-2"
                   required
                 >
-                  <option value="">Select User</option>
-                  {users.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.name}
+                  <option value="">Select Reservation</option>
+                  {reservations.map((reservation) => (
+                    <option
+                      key={reservation.reservation_id}
+                      value={reservation.reservation_id}
+                    >
+                      #{reservation.reservation_id} -{" "}
+                      {reservation.users?.name || "Unknown User"}
                     </option>
                   ))}
                 </select>

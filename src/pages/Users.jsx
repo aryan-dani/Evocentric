@@ -12,8 +12,7 @@ const Users = () => {
     name: "",
     email: "",
     phone: "",
-    vehicle_number: "",
-    payment_method: "",
+    wallet_balance: 0,
   });
 
   useEffect(() => {
@@ -25,7 +24,7 @@ const Users = () => {
     const { data, error } = await supabase
       .from("users")
       .select("*")
-      .order("id", { ascending: true });
+      .order("user_id", { ascending: true });
     if (data) setUsers(data);
     setLoading(false);
   };
@@ -36,7 +35,7 @@ const Users = () => {
       const { error } = await supabase
         .from("users")
         .update(formData)
-        .eq("id", editingUser.id);
+        .eq("user_id", editingUser.user_id);
       if (!error) {
         fetchUsers();
         resetForm();
@@ -52,7 +51,7 @@ const Users = () => {
 
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this user?")) {
-      const { error } = await supabase.from("users").delete().eq("id", id);
+      const { error } = await supabase.from("users").delete().eq("user_id", id);
       if (!error) fetchUsers();
     }
   };
@@ -62,9 +61,8 @@ const Users = () => {
     setFormData({
       name: user.name,
       email: user.email,
-      phone: user.phone,
-      vehicle_number: user.vehicle_number,
-      payment_method: user.payment_method,
+      phone: user.phone || "",
+      wallet_balance: user.wallet_balance || 0,
     });
     setShowModal(true);
   };
@@ -74,8 +72,7 @@ const Users = () => {
       name: "",
       email: "",
       phone: "",
-      vehicle_number: "",
-      payment_method: "",
+      wallet_balance: 0,
     });
     setEditingUser(null);
     setShowModal(false);
@@ -113,10 +110,10 @@ const Users = () => {
                     Phone
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Vehicle
+                    Wallet Balance
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Payment
+                    Created At
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Actions
@@ -138,18 +135,20 @@ const Users = () => {
                   </tr>
                 ) : (
                   users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm">{user.id}</td>
+                    <tr key={user.user_id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm">{user.user_id}</td>
                       <td className="px-6 py-4 text-sm font-medium">
                         {user.name}
                       </td>
                       <td className="px-6 py-4 text-sm">{user.email}</td>
-                      <td className="px-6 py-4 text-sm">{user.phone}</td>
                       <td className="px-6 py-4 text-sm">
-                        {user.vehicle_number}
+                        {user.phone || "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        {user.payment_method}
+                        ${parseFloat(user.wallet_balance || 0).toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        {new Date(user.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <div className="flex gap-2">
@@ -221,30 +220,21 @@ const Users = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Vehicle Number
+                  Wallet Balance ($)
                 </label>
                 <input
-                  type="text"
-                  value={formData.vehicle_number}
+                  type="number"
+                  step="0.01"
+                  value={formData.wallet_balance}
                   onChange={(e) =>
-                    setFormData({ ...formData, vehicle_number: e.target.value })
+                    setFormData({
+                      ...formData,
+                      wallet_balance: parseFloat(e.target.value) || 0,
+                    })
                   }
                   className="w-full border rounded-md px-3 py-2"
                   required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Payment Method
-                </label>
-                <input
-                  type="text"
-                  value={formData.payment_method}
-                  onChange={(e) =>
-                    setFormData({ ...formData, payment_method: e.target.value })
-                  }
-                  className="w-full border rounded-md px-3 py-2"
-                  required
+                  min="0"
                 />
               </div>
               <div className="flex gap-2 justify-end">

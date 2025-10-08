@@ -13,12 +13,10 @@ const Reservations = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [formData, setFormData] = useState({
     user_id: "",
-    station_id: "",
-    slot_number: "",
+    slot_id: "",
     start_time: "",
     end_time: "",
     status: "active",
-    payment_status: "pending",
   });
 
   useEffect(() => {
@@ -47,21 +45,21 @@ const Reservations = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("reservations")
-      .select("*, users(name), charging_stations(name)")
-      .order("id", { ascending: false });
+      .select("*, users(name)")
+      .order("reservation_id", { ascending: false });
     if (data) setReservations(data);
     setLoading(false);
   };
 
   const fetchUsers = async () => {
-    const { data } = await supabase.from("users").select("id, name");
+    const { data } = await supabase.from("users").select("user_id, name");
     if (data) setUsers(data);
   };
 
   const fetchStations = async () => {
     const { data } = await supabase
       .from("charging_stations")
-      .select("id, name");
+      .select("station_id, station_name");
     if (data) setStations(data);
   };
 
@@ -71,7 +69,7 @@ const Reservations = () => {
       const { error } = await supabase
         .from("reservations")
         .update(formData)
-        .eq("id", editingReservation.id);
+        .eq("reservation_id", editingReservation.reservation_id);
       if (!error) {
         fetchReservations();
         resetForm();
@@ -90,7 +88,7 @@ const Reservations = () => {
       const { error } = await supabase
         .from("reservations")
         .delete()
-        .eq("id", id);
+        .eq("reservation_id", id);
       if (!error) fetchReservations();
     }
   };
@@ -99,12 +97,10 @@ const Reservations = () => {
     setEditingReservation(reservation);
     setFormData({
       user_id: reservation.user_id,
-      station_id: reservation.station_id,
-      slot_number: reservation.slot_number,
+      slot_id: reservation.slot_id,
       start_time: reservation.start_time,
       end_time: reservation.end_time,
       status: reservation.status,
-      payment_status: reservation.payment_status,
     });
     setShowModal(true);
   };
@@ -112,12 +108,10 @@ const Reservations = () => {
   const resetForm = () => {
     setFormData({
       user_id: "",
-      station_id: "",
-      slot_number: "",
+      slot_id: "",
       start_time: "",
       end_time: "",
       status: "active",
-      payment_status: "pending",
     });
     setEditingReservation(null);
     setShowModal(false);
@@ -126,9 +120,7 @@ const Reservations = () => {
   const filteredReservations = reservations.filter(
     (res) =>
       res.users?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      res.charging_stations?.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
+      res.slot_id?.toString().includes(searchTerm.toLowerCase()) ||
       res.status.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -174,10 +166,7 @@ const Reservations = () => {
                     User
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Station
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Slot
+                    Slot ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Start Time
@@ -187,9 +176,6 @@ const Reservations = () => {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Payment
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Actions
@@ -211,22 +197,26 @@ const Reservations = () => {
                   </tr>
                 ) : (
                   filteredReservations.map((reservation) => (
-                    <tr key={reservation.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm">{reservation.id}</td>
+                    <tr
+                      key={reservation.reservation_id}
+                      className="hover:bg-gray-50"
+                    >
+                      <td className="px-6 py-4 text-sm">
+                        {reservation.reservation_id}
+                      </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         {reservation.users?.name || "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        {reservation.charging_stations?.name || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        {reservation.slot_number}
+                        {reservation.slot_id}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         {new Date(reservation.start_time).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        {new Date(reservation.end_time).toLocaleString()}
+                        {reservation.end_time
+                          ? new Date(reservation.end_time).toLocaleString()
+                          : "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm">
                         <span
@@ -242,17 +232,6 @@ const Reservations = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        <span
-                          className={`px-2 py-1 rounded text-xs ${
-                            reservation.payment_status === "paid"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {reservation.payment_status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleEdit(reservation)}
@@ -261,7 +240,9 @@ const Reservations = () => {
                             <Edit size={18} />
                           </button>
                           <button
-                            onClick={() => handleDelete(reservation.id)}
+                            onClick={() =>
+                              handleDelete(reservation.reservation_id)
+                            }
                             className="text-red-600 hover:text-red-800"
                           >
                             <Trash2 size={18} />
@@ -296,7 +277,7 @@ const Reservations = () => {
                 >
                   <option value="">Select User</option>
                   {users.map((user) => (
-                    <option key={user.id} value={user.id}>
+                    <option key={user.user_id} value={user.user_id}>
                       {user.name}
                     </option>
                   ))}
@@ -304,37 +285,23 @@ const Reservations = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Station
+                  Slot ID
                 </label>
                 <select
-                  value={formData.station_id}
+                  value={formData.slot_id}
                   onChange={(e) =>
-                    setFormData({ ...formData, station_id: e.target.value })
+                    setFormData({ ...formData, slot_id: e.target.value })
                   }
                   className="w-full border rounded-md px-3 py-2"
                   required
                 >
-                  <option value="">Select Station</option>
+                  <option value="">Select Slot</option>
                   {stations.map((station) => (
-                    <option key={station.id} value={station.id}>
-                      {station.name}
+                    <option key={station.station_id} value={station.station_id}>
+                      Slot {station.station_id} - {station.station_name}
                     </option>
                   ))}
                 </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Slot Number
-                </label>
-                <input
-                  type="text"
-                  value={formData.slot_number}
-                  onChange={(e) =>
-                    setFormData({ ...formData, slot_number: e.target.value })
-                  }
-                  className="w-full border rounded-md px-3 py-2"
-                  required
-                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -376,22 +343,6 @@ const Reservations = () => {
                   <option value="active">Active</option>
                   <option value="completed">Completed</option>
                   <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Payment Status
-                </label>
-                <select
-                  value={formData.payment_status}
-                  onChange={(e) =>
-                    setFormData({ ...formData, payment_status: e.target.value })
-                  }
-                  className="w-full border rounded-md px-3 py-2"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="paid">Paid</option>
-                  <option value="failed">Failed</option>
                 </select>
               </div>
               <div className="flex gap-2 justify-end">

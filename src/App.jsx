@@ -5,7 +5,6 @@ import Topbar from "./components/Topbar";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Stations from "./pages/Stations";
-import Parking from "./pages/Parking";
 import Reservations from "./pages/Reservations";
 import Penalties from "./pages/Penalties";
 
@@ -21,7 +20,6 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/users" element={<Users />} />
               <Route path="/stations" element={<Stations />} />
-              <Route path="/parking" element={<Parking />} />
               <Route path="/reservations" element={<Reservations />} />
               <Route path="/penalties" element={<Penalties />} />
             </Routes>

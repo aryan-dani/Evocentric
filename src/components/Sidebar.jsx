@@ -4,7 +4,6 @@ import {
   Home,
   Users,
   BatteryCharging,
-  Car,
   FileText,
   AlertTriangle,
 } from "lucide-react";
@@ -36,13 +35,6 @@ const Sidebar = () => {
         >
           <BatteryCharging className="mr-3" />
           Stations
-        </Link>
-        <Link
-          to="/parking"
-          className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md"
-        >
-          <Car className="mr-3" />
-          Parking
         </Link>
         <Link
           to="/reservations"

@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Users,
-  BatteryCharging,
-  Car,
-  FileText,
-  AlertTriangle,
-} from "lucide-react";
+import { Users, BatteryCharging, FileText, AlertTriangle } from "lucide-react";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
     stations: 0,
-    parking: 0,
     reservations: 0,
     penalties: 0,
   });
@@ -23,9 +16,6 @@ const Dashboard = () => {
       const { data: stations, error: stationsError } = await supabase
         .from("charging_stations")
         .select("*", { count: "exact" });
-      const { data: parking, error: parkingError } = await supabase
-        .from("parking_lots")
-        .select("*", { count: "exact" });
       const { data: reservations, error: reservationsError } = await supabase
         .from("reservations")
         .select("*", { count: "exact" });
@@ -35,7 +25,6 @@ const Dashboard = () => {
 
       setStats({
         stations: stations?.length || 0,
-        parking: parking?.length || 0,
         reservations: reservations?.length || 0,
         penalties: penalties?.length || 0,
       });
@@ -56,7 +45,7 @@ const Dashboard = () => {
 
   return (
     <div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -66,17 +55,6 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.stations}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Parking Lots
-            </CardTitle>
-            <Car className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.parking}</div>
           </CardContent>
         </Card>
         <Card>
@@ -109,10 +87,12 @@ const Dashboard = () => {
             <ul>
               {recentActivity.map((activity) => (
                 <li
-                  key={activity.id}
+                  key={activity.reservation_id}
                   className="flex justify-between py-2 border-b"
                 >
-                  <span>{activity.users.name} made a reservation.</span>
+                  <span>
+                    {activity.users?.name || "Unknown"} made a reservation.
+                  </span>
                   <span className="text-sm text-muted-foreground">
                     {new Date(activity.created_at).toLocaleTimeString()}
                   </span>
