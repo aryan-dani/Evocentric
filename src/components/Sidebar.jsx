@@ -6,6 +6,7 @@ import {
   BatteryCharging,
   FileText,
   AlertTriangle,
+  BarChart2,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -49,6 +50,13 @@ const Sidebar = () => {
         >
           <AlertTriangle className="mr-3" />
           Penalties
+        </Link>
+        <Link
+          to="/analytics"
+          className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md"
+        >
+          <BarChart2 className="mr-3" />
+          Analytics
         </Link>
       </nav>
     </div>

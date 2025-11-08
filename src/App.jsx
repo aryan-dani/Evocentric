@@ -7,6 +7,7 @@ import Users from "./pages/Users";
 import Stations from "./pages/Stations";
 import Reservations from "./pages/Reservations";
 import Penalties from "./pages/Penalties";
+import Analytics from "./pages/Analytics";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
               <Route path="/stations" element={<Stations />} />
               <Route path="/reservations" element={<Reservations />} />
               <Route path="/penalties" element={<Penalties />} />
+              <Route path="/analytics" element={<Analytics />} />
             </Routes>
           </main>
         </div>
